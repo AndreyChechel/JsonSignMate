@@ -12,14 +12,23 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+using System;
+using System.Security.Cryptography;
+using System.Text;
+
 namespace devSane.Json.Internal
 {
     internal static class SignatureProcessor
     {
-        public static string Calculate(string json)
+        public static string Calculate(string json, string secret)
         {
-            // TODO: Implement logic
-            return "TO-BE-IMPLEMENTED";
+            var secretBytes = Encoding.Unicode.GetBytes(secret);
+            using (var hs256 = new HMACSHA256(secretBytes))
+            {
+                var bytes = Encoding.Unicode.GetBytes(json);
+                var hash = hs256.ComputeHash(bytes);
+                return Convert.ToBase64String(hash);
+            }
         }
     }
 }

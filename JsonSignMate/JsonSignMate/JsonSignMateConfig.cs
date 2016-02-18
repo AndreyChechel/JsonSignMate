@@ -22,6 +22,8 @@ namespace devSane.Json
 
         public string SignatureKey { get; set; } = DefaultSignatureKey;
 
+        public string Secret { get; set; }
+
         #region ICloneable implementation
 
         public JsonSignMateConfig Clone()
@@ -33,7 +35,8 @@ namespace devSane.Json
         {
             return new JsonSignMateConfig
             {
-                SignatureKey = SignatureKey
+                SignatureKey = SignatureKey,
+                Secret = Secret
             };
         }
 

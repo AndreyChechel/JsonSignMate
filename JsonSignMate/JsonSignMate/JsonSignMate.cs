@@ -33,7 +33,7 @@ namespace devSane.Json
 
         public string Sign(string json)
         {
-            var signature = SignatureProcessor.Calculate(json);
+            var signature = SignatureProcessor.Calculate(json, _config.Secret);
             var signatureNode = new Dictionary<string, object> { { _config.SignatureKey, signature } };
 
             var updatedJson = JsonProcessor.AppendNodes(json, signatureNode);
@@ -49,7 +49,7 @@ namespace devSane.Json
             }
 
             var jsonWithoutSignature = RemoveSignature(json);
-            var calculatedSignature = SignatureProcessor.Calculate(jsonWithoutSignature);
+            var calculatedSignature = SignatureProcessor.Calculate(jsonWithoutSignature, _config.Secret);
 
             return string.Equals(storedSignature, calculatedSignature, StringComparison.Ordinal);
         }
