@@ -44,6 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Extensions\System\Security\SecureStringExtensions.cs" />
     <Compile Include="Config\JsonSignAlgorithm.cs" />
     <Compile Include="Config\JsonSignatureMethod.cs" />
     <Compile Include="Config\JsonSignatureMethodES.cs" />
