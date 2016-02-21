@@ -13,16 +13,19 @@ limitations under the License.
 */
 
 using System;
+using System.IO;
+using System.Security.Cryptography;
+using devSane.Json.Config;
+using devSane.Json.Internal;
+using Newtonsoft.Json;
 
 namespace devSane.Json
 {
     public class JsonSignMateConfig : ICloneable
     {
-        public const string DefaultSignatureKey = "Signature";
+        public string SignatureKey { get; set; } = "Signature";
 
-        public string SignatureKey { get; set; } = DefaultSignatureKey;
-
-        public string Secret { get; set; }
+        public JsonSignatureMethod Method { get; set; }
 
         #region ICloneable implementation
 
@@ -36,7 +39,7 @@ namespace devSane.Json
             return new JsonSignMateConfig
             {
                 SignatureKey = SignatureKey,
-                Secret = Secret
+                Method = Method
             };
         }
 

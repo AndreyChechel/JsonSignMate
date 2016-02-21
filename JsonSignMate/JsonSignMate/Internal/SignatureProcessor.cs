@@ -15,18 +15,86 @@ limitations under the License.
 using System;
 using System.Security.Cryptography;
 using System.Text;
+using devSane.Json.Config;
 
 namespace devSane.Json.Internal
 {
     internal static class SignatureProcessor
     {
-        public static string Calculate(string json, string secret)
+        public static JsonSignInfo Calculate(string json, JsonSignatureMethod method)
         {
+            string signature;
+
+            var jsonBytes = Encoding.Unicode.GetBytes(json);
             var secretBytes = Encoding.Unicode.GetBytes(secret);
-            using (var hs256 = new HMACSHA256(secretBytes))
+
+            switch (algorithm)
             {
-                var bytes = Encoding.Unicode.GetBytes(json);
-                var hash = hs256.ComputeHash(bytes);
+                case JsonSignAlgorithm.HMACSHA256:
+                    signature = CalculateHMACSHA256(jsonBytes, secretBytes);
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(algorithm));
+            }
+
+            var result = new JsonSignInfo {Algorithm = algorithm, Signature = signature};
+            return result;
+        }
+
+        private static string CalculateHMACSHA1(byte[] data, byte[] secret)
+        {
+            using (var hs1 = new HMACSHA1(secret))
+            {
+                var hash = hs1.ComputeHash(data);
+                return Convert.ToBase64String(hash);
+            }
+        }
+
+        private static string CalculateHMACSHA256(byte[] data, byte[] secret)
+        {
+            using (var hs256 = new HMACSHA256(secret))
+            {
+                var hash = hs256.ComputeHash(data);
+                return Convert.ToBase64String(hash);
+            }
+        }
+
+        private static string CalculateHMACSHA384(byte[] data, byte[] secret)
+        {
+            using (var hs384 = new HMACSHA384(secret))
+            {
+                var hash = hs384.ComputeHash(data);
+                return Convert.ToBase64String(hash);
+            }
+        }
+
+        private static string CalculateRSASHA1(byte[] data, byte[] privateRsaParameters)
+        {
+            using (var rs1 = new RSACryptoServiceProvider())
+            {
+                rs1.FromXmlString(privateKeyXml);
+
+                using (var s1 = new SHA1CryptoServiceProvider())
+                {
+                    
+                }
+            }
+
+
+            using (var hs512 = new HMACSHA512(secret))
+            {
+                var hash = hs512.ComputeHash(data);
+                return Convert.ToBase64String(hash);
+            }
+        }
+
+        private static string CalculateHMACSHA512(byte[] data, byte[] secret)
+        {
+            var rsa = new RSACryptoServiceProvider();
+            using (var hs512 = new re(secret))
+            {
+                var hash = hs512.ComputeHash(data);
                 return Convert.ToBase64String(hash);
             }
         }

@@ -25,6 +25,32 @@ namespace devSane.Json.Internal
         private delegate void JsonReadingNodeHandler(JsonReader reader, bool isRootNode);
         private delegate void JsonWritingNodeHandler(JsonWriter writer);
 
+        public static byte[] Serialize<T>(T obj)
+        {
+            using (var ms = new MemoryStream())
+            {
+                using (var sw = new StreamWriter(ms))
+                {
+                    var jsonSerializer = new JsonSerializer();
+                    jsonSerializer.Serialize(sw, obj, typeof(T));
+                }
+
+                return ms.ToArray();
+            }
+        }
+
+        public static T Deserialize<T>(byte[] data)
+        {
+            using (var ms = new MemoryStream(data))
+            {
+                using (var sr = new StreamReader(ms))
+                {
+                    var jsonSerializer = new JsonSerializer();
+                    return (T)jsonSerializer.Deserialize(sr, typeof(T));
+                }
+            }
+        }
+
         public static object[] ReadRootObjProperty(string jsonStr, string propertyName, JsonToken valueType)
         {
             var values = new List<object>();

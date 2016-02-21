@@ -44,6 +44,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Config\JsonSignAlgorithm.cs" />
+    <Compile Include="Config\JsonSignatureMethod.cs" />
+    <Compile Include="Config\JsonSignatureMethodES.cs" />
+    <Compile Include="Config\JsonSignatureMethodHS.cs" />
+    <Compile Include="Config\JsonSignatureMethodRS.cs" />
+    <Compile Include="JsonSignInfo.cs" />
     <Compile Include="JsonSignMate.cs" />
     <Compile Include="Internal\JsonProcessor.cs" />
     <Compile Include="JsonSignMateConfig.cs" />
