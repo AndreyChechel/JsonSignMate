@@ -54,6 +54,26 @@ namespace devSane.Json.Tests
         }
 
         [TestMethod]
+        public void CloneTest()
+        {
+            var secretChs = new[] { 'T', 'e', 's', 't', 'S', 'e', 'c', 'r', 'e', 't' };
+            var ss = new SecureString();
+            ss.AppendChars(secretChs);
+            ss.MakeReadOnly();
+
+            var cloned = ss.Clone();
+            Assert.AreNotEqual(ss, cloned);
+
+            ss.Process(originalBytes =>
+            {
+                cloned.Process(clonedBytes =>
+                {
+                    CollectionAssert.AreEqual(originalBytes, clonedBytes);
+                });
+            });
+        }
+
+        [TestMethod]
         public void SecureStringProcessActionTest()
         {
             var secretChs = new[] {'T', 'e', 's', 't', 'S', 'e', 'c', 'r', 'e', 't'};

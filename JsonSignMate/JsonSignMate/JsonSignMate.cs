@@ -15,6 +15,7 @@ limitations under the License.
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using devSane.Json.Internal;
 using Newtonsoft.Json;
 
@@ -22,18 +23,21 @@ namespace devSane.Json
 {
     public class JsonSignMate
     {
+        public static readonly JsonSignMateFactory Factory = new JsonSignMateFactory();
+
         private readonly JsonSignMateConfig _config;
 
-        public JsonSignMate(JsonSignMateConfig config)
+        internal JsonSignMate(JsonSignMateConfig config)
         {
-            _config = config.Clone();
+            _config = config;
         }
 
         #region Public methods
 
         public string Sign(string json)
         {
-            var signature = SignatureProcessor.Calculate(json, _config.Secret);
+            var jsonBytes = Encoding.Unicode.GetBytes(json);
+            var signature = _config.Method.ComputeSignature(jsonBytes);
             var signatureNode = new Dictionary<string, object> { { _config.SignatureKey, signature } };
 
             var updatedJson = JsonProcessor.AppendNodes(json, signatureNode);
@@ -49,7 +53,9 @@ namespace devSane.Json
             }
 
             var jsonWithoutSignature = RemoveSignature(json);
-            var calculatedSignature = SignatureProcessor.Calculate(jsonWithoutSignature, _config.Secret);
+            var jsonWithoutSignatureBytes = Encoding.Unicode.GetBytes(jsonWithoutSignature);
+
+            var calculatedSignature = _config.Method.ComputeSignature(jsonWithoutSignatureBytes);
 
             return string.Equals(storedSignature, calculatedSignature, StringComparison.Ordinal);
         }

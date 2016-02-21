@@ -15,7 +15,6 @@ limitations under the License.
 using System;
 using System.IO;
 using System.Security.Cryptography;
-using devSane.Json.Config;
 using devSane.Json.Internal;
 using Newtonsoft.Json;
 
@@ -25,7 +24,7 @@ namespace devSane.Json
     {
         public string SignatureKey { get; set; } = "Signature";
 
-        public JsonSignatureMethod Method { get; set; }
+        internal JsonSignMethod Method { get; set; }
 
         #region ICloneable implementation
 

@@ -13,44 +13,43 @@ limitations under the License.
 */
 
 using System;
-using System.Security;
 using System.Security.Cryptography;
 
-namespace devSane.Json.Config
+namespace devSane.Json
 {
-    internal class JsonSignatureMethodHS : JsonSignatureMethod
+    internal class JsonSignMethodES : JsonSignMethod
     {
-        private new JsonSignAlgorithmHS Algorithm { get; }
-        private readonly SecureString _secret;
+        private new JsonSignAlgorithmES Algorithm { get; }
+        private readonly CngKey _key;
 
-        public JsonSignatureMethodHS(JsonSignAlgorithmHS algorithm, SecureString secret)
+        public JsonSignMethodES(JsonSignAlgorithmES algorithm, CngKey key)
             : base((JsonSignAlgorithm)algorithm)
         {
             switch (algorithm)
             {
-                case JsonSignAlgorithmHS.HS1:
-                case JsonSignAlgorithmHS.HS256:
-                case JsonSignAlgorithmHS.HS384:
-                case JsonSignAlgorithmHS.HS512:
+                case JsonSignAlgorithmES.ES1:
+                case JsonSignAlgorithmES.ES256:
+                case JsonSignAlgorithmES.ES384:
+                case JsonSignAlgorithmES.ES512:
                     break;
 
                 default:
-                    throw new ArgumentOutOfRangeException("algorithm");
+                    throw new ArgumentOutOfRangeException(nameof(algorithm));
             }
 
-            throw new NotImplementedException(); // TODO: Clone secret
-
             Algorithm = algorithm;
-            _secret = secret;
+
+            var keyBytes = key.Export(CngKeyBlobFormat.EccPrivateBlob);
+            _key = CngKey.Import(keyBytes, CngKeyBlobFormat.EccPrivateBlob);
         }
 
         public override string ComputeSignature(byte[] data)
         {
             byte[] signatureBytes;
 
-            using (var hs = CreateHS())
+            using (var es = CreateES())
             {
-                signatureBytes = hs.ComputeHash(data);
+                signatureBytes = es.SignData(data);
             }
 
             return Convert.ToBase64String(signatureBytes);
@@ -58,10 +57,10 @@ namespace devSane.Json.Config
 
         public override bool ValidateSignature(byte[] data, string signature)
         {
-            using (var hs = CreateHS())
+            using (var es = CreateES())
             {
                 var storedSignature = Convert.FromBase64String(signature);
-                var actualSignature = hs.ComputeHash(data);
+                var actualSignature = es.SignData(data);
 
                 if (actualSignature.Length != storedSignature.Length)
                 {
@@ -73,7 +72,7 @@ namespace devSane.Json.Config
                 {
                     if (actualSignature[i] != storedSignature[i])
                     {
-                        errCount ++;
+                        errCount++;
                     }
                 }
                 return errCount == 0;
@@ -82,37 +81,41 @@ namespace devSane.Json.Config
 
         public override byte[] ExportKey(bool includePrivateKey)
         {
-            throw new NotImplementedException(); // TODO: implement
+            return _key.Export(includePrivateKey ? CngKeyBlobFormat.EccPrivateBlob : CngKeyBlobFormat.EccPublicBlob);
         }
 
-        private HashAlgorithm CreateHS()
+        public override JsonSignMethod Clone()
         {
-            throw new NotImplementedException(); // TODO: Provide key
+            return new JsonSignMethodES(Algorithm, _key);
+        }
 
-            HashAlgorithm sha;
+        private ECDsaCng CreateES()
+        {
+            var es = new ECDsaCng(_key);
+
             switch (Algorithm)
             {
-                case JsonSignAlgorithmHS.HS1:
-                    sha = new HMACSHA1();
+                case JsonSignAlgorithmES.ES1:
+                    es.HashAlgorithm = CngAlgorithm.Sha1;
                     break;
 
-                case JsonSignAlgorithmHS.HS256:
-                    sha = new HMACSHA256();
+                case JsonSignAlgorithmES.ES256:
+                    es.HashAlgorithm = CngAlgorithm.Sha256;
                     break;
 
-                case JsonSignAlgorithmHS.HS384:
-                    sha = new HMACSHA384();
+                case JsonSignAlgorithmES.ES384:
+                    es.HashAlgorithm = CngAlgorithm.Sha384;
                     break;
 
-                case JsonSignAlgorithmHS.HS512:
-                    sha = new HMACSHA512();
+                case JsonSignAlgorithmES.ES512:
+                    es.HashAlgorithm = CngAlgorithm.Sha512;
                     break;
 
                 default:
                     throw new ArgumentOutOfRangeException();
             }
 
-            return sha;
+            return es;
         }
     }
 }

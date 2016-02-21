@@ -16,14 +16,14 @@ using System;
 using System.Security.Cryptography;
 using devSane.Json.Internal;
 
-namespace devSane.Json.Config
+namespace devSane.Json
 {
-    internal class JsonSignatureMethodRS : JsonSignatureMethod
+    internal class JsonSignMethodRS : JsonSignMethod
     {
         private new JsonSignAlgorithmRS Algorithm { get; }
         private readonly RSAParameters _rsaParameters;
 
-        public JsonSignatureMethodRS(JsonSignAlgorithmRS algorithm, RSAParameters rsaParameters)
+        public JsonSignMethodRS(JsonSignAlgorithmRS algorithm, RSAParameters rsaParameters)
             : base((JsonSignAlgorithm) algorithm)
         {
             switch (algorithm)
@@ -35,7 +35,7 @@ namespace devSane.Json.Config
                     break;
 
                 default:
-                    throw new ArgumentOutOfRangeException("algorithm");
+                    throw new ArgumentOutOfRangeException(nameof(algorithm));
             }
 
             Algorithm = algorithm;
@@ -82,6 +82,11 @@ namespace devSane.Json.Config
                 var exportingRsaBytes = JsonProcessor.Serialize(exportingRsa);
                 return exportingRsaBytes;
             }
+        }
+
+        public override JsonSignMethod Clone()
+        {
+            return new JsonSignMethodRS(Algorithm, _rsaParameters);
         }
 
         private RSACryptoServiceProvider CreateRS()

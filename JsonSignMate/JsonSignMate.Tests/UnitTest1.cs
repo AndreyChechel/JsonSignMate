@@ -12,6 +12,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+using System.Security;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 
@@ -25,10 +26,11 @@ namespace devSane.Json.Tests
         {
             var a = new A {IntField = 55};
 
-            var json = JsonConvert.SerializeObject(a);
+            var ss = new SecureString();
+            ss.AppendChars(new[] {'t', 'e', 's', 't'});
 
-            var signConfig = new JsonSignMateConfig {Secret = "TestSecret"};
-            var signMate = new JsonSignMate(signConfig);
+            var json = JsonConvert.SerializeObject(a);
+            var signMate = JsonSignMate.Factory.CreateHS(JsonSignAlgorithmHS.HS256, ss);
 
             var signedJson = signMate.Sign(json);
             var isValid = signMate.Validate(signedJson);

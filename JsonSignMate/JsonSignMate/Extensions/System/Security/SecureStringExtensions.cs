@@ -31,6 +31,25 @@ namespace System.Security
             }
         }
 
+        public static SecureString Clone(this SecureString secureStr)
+        {
+            if (secureStr == null) throw new ArgumentNullException(nameof(secureStr));
+
+            var clonedStr = new SecureString();
+            secureStr.Process(bytes =>
+            {
+                for (int i = 0; i < secureStr.Length; i++)
+                {
+                    var b0 = bytes[2*i];
+                    var b1 = bytes[2*i+1];
+                    var ch = BitConverter.ToChar(new[] {b0, b1}, 0);
+                    clonedStr.AppendChar(ch);
+                }
+            });
+
+            return clonedStr;
+        }
+
         public static T Process<T>(this SecureString secureStr, Func<byte[], T> handlerFn)
         {
             if (secureStr == null) throw new ArgumentNullException(nameof(secureStr));

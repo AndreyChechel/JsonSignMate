@@ -12,16 +12,23 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-using devSane.Json.Config;
-
 namespace devSane.Json
 {
-    public class JsonSignInfo
+    public enum JsonSignAlgorithm
     {
-         public JsonSignAlgorithm Algorithm { get; set; }
+        HS1   = JsonSignAlgorithmHS.HS1,
+        HS256 = JsonSignAlgorithmHS.HS256,
+        HS384 = JsonSignAlgorithmHS.HS384,
+        HS512 = JsonSignAlgorithmHS.HS512,
 
-         public string Signature { get; set; }
+        RS1   = JsonSignAlgorithmRS.RS1,
+        RS256 = JsonSignAlgorithmRS.RS256,
+        RS384 = JsonSignAlgorithmRS.RS384,
+        RS512 = JsonSignAlgorithmRS.RS512,
+
+        ES1   = JsonSignAlgorithmES.ES1,
+        ES256 = JsonSignAlgorithmES.ES256,
+        ES384 = JsonSignAlgorithmES.ES384,
+        ES512 = JsonSignAlgorithmES.ES512,
     }
-
-   
 }
